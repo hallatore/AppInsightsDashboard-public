@@ -1,0 +1,58 @@
+﻿.el-status {
+    border-left: 5px solid darkslategrey;
+    float: left;
+    width: ~"calc(25% - 7.5px)";
+    padding-left: 10px;
+    margin-right: 10px;
+    margin-top: 10px;
+    
+    &:nth-of-type(4n+0) {
+        margin-right: 0;
+    }
+
+    &.green {        
+        border-left-color: darkgreen;
+    }
+
+    &.red {        
+        border-left-color: red;
+        color: red;
+    }
+
+    &.yellow {        
+        border-left-color: yellow;
+        color: yellow;
+    }
+
+    &.blue {        
+        border-left-color: darkslategray;
+    }
+
+    &.disabled {
+        opacity: 0.3;
+    }
+
+    .title {
+        text-transform: uppercase;
+        font-size: 12px;
+        line-height: 100%;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    .value {
+        text-transform: uppercase;
+        font-weight: bold;
+        font-size: 30px;
+        line-height: 100%;
+        margin-top: 3px;
+
+        span {
+            font-size: 15px;
+            line-height: 100%;
+            padding-left: 5px;
+            text-transform: lowercase;
+        }
+    }
+}

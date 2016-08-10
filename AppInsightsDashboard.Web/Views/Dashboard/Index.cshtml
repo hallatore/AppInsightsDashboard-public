@@ -1,0 +1,19 @@
+﻿@model AppInsightsDashboard.Web.ViewModels.Dashboard.IndexViewModel
+
+<div id="dashboard"></div>
+<a href="@Url.Action("Quota", new { id = Model.Id})" style="margin-top: 10px; display: block;">Estimated usage</a>
+<script>
+    window.scripts.push(function () {
+        var projects = [
+            @foreach (var item in Model.Items)
+            {
+                <text>{ name: "@item.Name", url: "@Url.Action("Status", new {id = Model.Id, applicationId = item.ApplicationId})"},</text>
+            }];
+
+        ReactDOM.render(React.createElement(Dashboard,
+        {
+            columns: @Model.Columns,
+            projects: projects
+        }), $("#dashboard")[0]);
+    });
+</script>

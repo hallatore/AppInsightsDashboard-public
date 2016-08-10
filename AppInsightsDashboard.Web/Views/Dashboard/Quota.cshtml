@@ -1,0 +1,42 @@
+﻿@model Dictionary<string, int?>
+
+<div class="el-table">
+    <h2>Estimated telemetry usage</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>&nbsp;</th>
+                <th>Last 24 hours</th>
+                <th>~ Monthly usage</th>
+                <th>~ Monthly cost</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var project in Model)
+            {
+                var monthly = project.Value * 31;
+                var status = "Free";
+
+                if (monthly > 50000000)
+                {
+                    status = "HIGH";
+                }
+                if (monthly > 15000000)
+                {
+                    status = "Premium";
+                }
+                else if (monthly > 5000000)
+                {
+                    status = "Standard";
+                }
+
+                <tr>
+                    <td>@project.Key</td>
+                    <td>@string.Format("{0:#,0}", project.Value)</td>
+                    <td>@string.Format("{0:#,0}", monthly)</td>
+                    <td>@status</td>
+        </tr>
+            }
+        </tbody>
+    </table>
+</div>

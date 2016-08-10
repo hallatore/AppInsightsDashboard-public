@@ -1,0 +1,38 @@
+﻿@-webkit-keyframes blink { 
+   50% { border-color: transparent; } 
+}
+
+.el-box {
+    background: #222;
+    padding: 10px;
+    position: relative;
+
+    &.red {
+        border: 5px solid red;
+        -webkit-animation: blink .5s step-end infinite alternate;
+        padding: 5px;
+
+        h2 {
+            color: red;
+        }
+    }
+
+    &.yellow {
+        h2 {
+            color: yellow;
+        }
+    }
+
+    .error {
+        position: absolute;
+        top: 40px;
+        right: 0;
+        left: 0;
+        bottom: 0;
+        background: #222;
+        text-align: center;
+        line-height: 30px;
+        font-size: 20px;
+        color: #777;
+    }
+}
