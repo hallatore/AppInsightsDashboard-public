@@ -42,6 +42,12 @@ namespace AppInsightsDashboard.Web.Business.AppInsightsApi
             return result["value"][path][aggregation].Value<int?>();
         }
 
+        private static async Task<long?> GetTelemetryAsLong(Guid appid, string apikey, string operation, string path, AppInsightsTimeSpan timespan, string aggregation)
+        {
+            var result = await GetTelemetry(appid, apikey, "metrics", path, timespan.ToString(), aggregation);
+            return result["value"][path][aggregation].Value<long?>();
+        }
+
         public static Task<int?> GetRequestsCount(Guid appid, string apikey, AppInsightsTimeSpan timeSpan)
         {
             return GetTelemetryAsInt(appid, apikey, "metrics", "requests/count", timeSpan, "sum");
@@ -76,6 +82,11 @@ namespace AppInsightsDashboard.Web.Business.AppInsightsApi
         public static Task<int?> GetTelemetryCount(Guid appid, string apikey, AppInsightsTimeSpan timeSpan)
         {
             return GetTelemetryAsInt(appid, apikey, "metrics", "billing/telemetryCount", timeSpan, "sum");
+        }
+
+        public static Task<long?> GetTelemetrySize(Guid appid, string apikey, AppInsightsTimeSpan timeSpan)
+        {
+            return GetTelemetryAsLong(appid, apikey, "metrics", "billingMeters/telemetrySize", timeSpan, "sum");
         }
     }
 

@@ -23,29 +23,39 @@ namespace AppInsightsDashboard.Web.Business.Dashboard
             var requestsCount = AppInsightsClient.GetRequestsCount(item.ApplicationId, item.ApiKey, AppInsightsTimeSpan.PT1H);
             var requestsFailed = AppInsightsClient.GetExceptionsServer(item.ApplicationId, item.ApiKey, AppInsightsTimeSpan.PT1H);
             var requestsDuration = AppInsightsClient.GetRequestsDurationPercentile(item.ApplicationId, item.ApiKey, 90);
-            var requestsCount5Min = AppInsightsClient.GetRequestsCount(item.ApplicationId, item.ApiKey, AppInsightsTimeSpan.PT5M);
-            var requestsFailed5Min = AppInsightsClient.GetExceptionsServer(item.ApplicationId, item.ApiKey, AppInsightsTimeSpan.PT5M);
+            var requestsCount10Min = AppInsightsClient.GetRequestsCount(item.ApplicationId, item.ApiKey, AppInsightsTimeSpan.PT10M);
+            var requestsFailed10Min = AppInsightsClient.GetExceptionsServer(item.ApplicationId, item.ApiKey, AppInsightsTimeSpan.PT10M);
             var availabilityPercentage10Min = AppInsightsClient.GetAvailabilityPercentage(item.ApplicationId, item.ApiKey, AppInsightsTimeSpan.PT10M);
-            await Task.WhenAll(requestsCount, requestsFailed, requestsDuration, requestsCount5Min, requestsFailed5Min, availabilityPercentage10Min);
+            await Task.WhenAll(requestsCount, requestsFailed, requestsDuration, requestsCount10Min, requestsFailed10Min, availabilityPercentage10Min);
 
             var requests = requestsCount.Result / 60;
             var responseTime = requestsDuration.Result.HasValue ? requestsDuration.Result.Value : 0;
             var errorRate = requestsCount.Result.HasValue && requestsFailed.Result.HasValue && requestsCount.Result.Value > 0 && requestsFailed.Result.Value >= DashboardConfig.Settings.ErrorCountMinimum ? Math.Round(100.0 / requestsCount.Result.Value * requestsFailed.Result.Value, 1) : 0;
-            var errorRate5Min = requestsCount5Min.Result.HasValue && requestsFailed5Min.Result.HasValue && requestsCount5Min.Result > 0 && requestsFailed5Min.Result >= DashboardConfig.Settings.ErrorCountMinimum ? Math.Round(100.0 / requestsCount5Min.Result.Value * requestsFailed5Min.Result.Value, 1) : 0;
+            var errorRate10Min = requestsCount10Min.Result.HasValue && requestsFailed10Min.Result.HasValue && requestsCount10Min.Result > 0 && requestsFailed10Min.Result >= DashboardConfig.Settings.ErrorCountMinimum ? Math.Round(100.0 / requestsCount10Min.Result.Value * requestsFailed10Min.Result.Value, 1) : 0;
             var availabilityErrorLevel = availabilityPercentage10Min.Result < 50 ? ErrorLevel.Error : ErrorLevel.Normal;
+
+            if (requestsFailed.Result.HasValue && requestsFailed.Result.Value > 0 && (!requestsCount.Result.HasValue || requestsCount.Result.Value == 0))
+            {
+                errorRate = 100;
+            }
+
+            if (requestsFailed10Min.Result.HasValue && requestsFailed10Min.Result.Value > 0 && (!requestsCount10Min.Result.HasValue || requestsCount10Min.Result.Value == 0))
+            {
+                errorRate10Min = 100;
+            }
 
             var result = new ItemStatus
             {
                 RequestsPerMinute = requests.Value,
                 AvgResponseTime = responseTime,
                 ErrorRate = errorRate,
-                ErrorRate5Min = errorRate5Min,
+                ErrorRate10Min = errorRate10Min,
                 AvgResponseTimeErrorLevel = responseTime > DashboardConfig.Settings.AvgResponseTimeWarning ? ErrorLevel.Warning : ErrorLevel.Normal,
                 ErrorRateLevel = GetErrorRateLevel(errorRate),
-                ErrorRateLevel5Min = GetErrorRateLevel(errorRate5Min)
+                ErrorRateLevel10Min = GetErrorRateLevel(errorRate10Min)
             };
 
-            result.ErrorLevel = (ErrorLevel)new[] { result.AvgResponseTimeErrorLevel, result.ErrorRateLevel, result.ErrorRateLevel5Min, availabilityErrorLevel }.Cast<int>().Max();
+            result.ErrorLevel = (ErrorLevel)new[] { result.AvgResponseTimeErrorLevel, result.ErrorRateLevel, result.ErrorRateLevel10Min, availabilityErrorLevel }.Cast<int>().Max();
             return result;
         }
 
@@ -56,6 +66,9 @@ namespace AppInsightsDashboard.Web.Business.Dashboard
 
             if (errorRate >= DashboardConfig.Settings.ErrorRateWarning)
                 return ErrorLevel.Warning;
+
+            if (errorRate == 0)
+                return ErrorLevel.Gray;
 
             return ErrorLevel.Normal;
         }

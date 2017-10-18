@@ -9,8 +9,8 @@
     componentDidMount: function () {
         this.load();
         setTimeout(function() {
-            setInterval(this.load, 60000);
-        }.bind(this), Math.random() * 60000);
+            setInterval(this.load, 200 * 1000);
+        }.bind(this), Math.random() * 200 * 1000);
     },
     render: function () {
         var error = this.state.isError ? (<div className="error">{this.state.errorMessage}</div>) : null;
@@ -30,9 +30,9 @@
                         <div className="title">Error rate</div>
                         <div className="value">{this.state.data.ErrorRate}<span>%</span></div>
                     </div>
-                    <div className={"el-status " + this.getErrorLevel(this.state.data.ErrorRateLevel5Min)}>
-                        <div className="title">Error rate (5 min)</div>
-                        <div className="value">{this.state.data.ErrorRate5Min}<span>%</span></div>
+                    <div className={"el-status " + this.getErrorLevel(this.state.data.ErrorRateLevel10Min)}>
+                        <div className="title">Error rate (10 min)</div>
+                        <div className="value">{this.state.data.ErrorRate10Min}<span>%</span></div>
                     </div>
                     {error}
                 </div>
@@ -45,6 +45,9 @@
 
         if (errorLevel === 1)
             return "yellow";
+
+        if (errorLevel === 3)
+            return "gray";
 
         return "";
     },

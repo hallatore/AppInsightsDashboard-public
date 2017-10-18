@@ -7,8 +7,8 @@ namespace AppInsightsDashboard.Web.Business.Dashboard.Models
         public ErrorLevel AvgResponseTimeErrorLevel { get; set; }
         public double ErrorRate { get; set; }
         public ErrorLevel ErrorRateLevel { get; set; }
-        public double ErrorRate5Min { get; set; }
-        public ErrorLevel ErrorRateLevel5Min { get; set; }
+        public double ErrorRate10Min { get; set; }
+        public ErrorLevel ErrorRateLevel10Min { get; set; }
         public ErrorLevel ErrorLevel { get; set; }
     }
 }

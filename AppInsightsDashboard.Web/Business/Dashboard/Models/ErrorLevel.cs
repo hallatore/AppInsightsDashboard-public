@@ -4,6 +4,7 @@ namespace AppInsightsDashboard.Web.Business.Dashboard.Models
     {
         Normal = 0,
         Warning = 1,
-        Error = 2
+        Error = 2,
+        Gray = 3
     }
 }

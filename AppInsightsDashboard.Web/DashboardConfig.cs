@@ -8,7 +8,7 @@ namespace AppInsightsDashboard.Web
     {
         public static readonly DashboardSettings Settings = new DashboardSettings
         {
-            AvgResponseTimeWarning = 500,
+            AvgResponseTimeWarning = 1000,
             ErrorRateWarning = 1.0,
             ErrorRateError = 3.0,
             ErrorCountMinimum = 5
