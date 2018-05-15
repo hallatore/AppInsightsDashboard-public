@@ -21,10 +21,17 @@ namespace AppInsightsDashboard.Web.Controllers
             return View(model);
         }
 
-        [OutputCache(Duration = 50, Location = OutputCacheLocation.ServerAndClient)]
-        public async Task<ActionResult> Status(Guid id, Guid applicationId)
+        [OutputCache(Duration = 20, Location = OutputCacheLocation.ServerAndClient)]
+        public async Task<ActionResult> SiteStatus(Guid id, Guid applicationId, string name)
         {
-            var result = await DashboardHelper.GetStatus(id, applicationId);
+            var result = await DashboardHelper.GetSiteStatus(id, applicationId, name);
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        [OutputCache(Duration = 20, Location = OutputCacheLocation.ServerAndClient)]
+        public async Task<ActionResult> AnalyticsStatus(Guid id, Guid applicationId, string name)
+        {
+            var result = await DashboardHelper.GetAnalyticsStatus(id, applicationId, name);
             return Json(result, JsonRequestBehavior.AllowGet);
         }
     }

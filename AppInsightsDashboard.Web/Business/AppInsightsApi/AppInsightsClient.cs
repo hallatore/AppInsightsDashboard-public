@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
@@ -9,31 +10,39 @@ namespace AppInsightsDashboard.Web.Business.AppInsightsApi
     public static class AppInsightsClient
     {
         // https://www.applicationinsights.microsoft.com/apiexplorer/metrics
-        private const string Url = "https://api.applicationinsights.io/beta/apps/{0}/{1}/{2}?timespan={3}&aggregation={4}";
-        private const string QueryUrl = "https://api.applicationinsights.io/beta/apps/{0}/query?query={1}";
+        private const string Url = "https://api.applicationinsights.io/v1/apps/{0}/{1}/{2}?timespan={3}&aggregation={4}";
+        private const string QueryUrl = "https://api.applicationinsights.io/v1/apps/{0}/query?query={1}";
+        private static Dictionary<string, HttpClient> httpClients = new Dictionary<string, HttpClient>();
 
-        private static async Task<JObject> GetTelemetry(Guid appid, string apikey, string operation, string path, string timespan, string aggregation)
+        private static HttpClient GetHttpClient(string apiKey)
         {
-            var url = string.Format(Url, appid, operation, path, timespan, aggregation);
-
-            using (var client = new HttpClient())
+            lock(httpClients)
             {
-                client.DefaultRequestHeaders.Add("x-api-key", apikey);
-                var json = await client.GetStringAsync(url).ConfigureAwait(false);
-                return JObject.Parse(json);
+                if (httpClients.ContainsKey(apiKey))
+                    return httpClients[apiKey];
+
+                var client = new HttpClient();
+                client.DefaultRequestHeaders.Add("x-api-key", apiKey);
+                httpClients.Add(apiKey, client);
+                return client;
             }
         }
 
-        private static async Task<JObject> GetTelemetryQuery(Guid appid, string apikey, string query)
+        private static async Task<JObject> GetTelemetry(Guid appid, string apikey, string operation, string path, string timespan, string aggregation)
         {
-            var url = string.Format(QueryUrl, appid, HttpUtility.UrlEncode(query));
+            var httpClient = GetHttpClient(apikey);
+            var url = string.Format(Url, appid, operation, path, timespan, aggregation);
+            var json = await httpClient.GetStringAsync(url).ConfigureAwait(false);
+            return JObject.Parse(json);
+        }
 
-            using (var client = new HttpClient())
-            {
-                client.DefaultRequestHeaders.Add("x-api-key", apikey);
-                var json = await client.GetStringAsync(url).ConfigureAwait(false);
-                return JObject.Parse(json);
-            }
+        public static async Task<int?> GetTelemetryQuery(Guid appid, string apikey, string query)
+        {
+            var httpClient = GetHttpClient(apikey);
+            var url = string.Format(QueryUrl, appid, HttpUtility.UrlEncode(query));
+            var json = await httpClient.GetStringAsync(url).ConfigureAwait(false);
+            var result = JObject.Parse(json);
+            return result["tables"][0]["rows"][0][0].Value<int?>();
         }
 
         private static async Task<int?> GetTelemetryAsInt(Guid appid, string apikey, string operation, string path, AppInsightsTimeSpan timespan, string aggregation)
@@ -68,10 +77,9 @@ namespace AppInsightsDashboard.Web.Business.AppInsightsApi
             return GetTelemetryAsInt(appid, apikey, "metrics", "requests/duration", timeSpan, "avg");
         }
 
-        public static async Task<int?> GetRequestsDurationPercentile(Guid appid, string apikey, double percentile)
+        public static Task<int?> GetRequestsDurationPercentile(Guid appid, string apikey, double percentile)
         {
-            var result = await GetTelemetryQuery(appid, apikey, string.Format("requests | where timestamp >= ago(1h) | summarize percentiles(duration, {0})", percentile));
-            return result["Tables"][0]["Rows"][0][0].Value<int?>();
+            return GetTelemetryQuery(appid, apikey, string.Format("requests | where timestamp >= ago(1h) | summarize percentiles(duration, {0})", percentile));
         }
 
         public static Task<int?> GetAvailabilityPercentage(Guid appid, string apikey, AppInsightsTimeSpan timeSpan)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Web.Mvc;
 using System.Web.Routing;
 
@@ -10,6 +11,7 @@ namespace AppInsightsDashboard.Web
 
         protected void Application_Start()
         {
+            ServicePointManager.DefaultConnectionLimit = 32;
             AreaRegistration.RegisterAllAreas();
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);

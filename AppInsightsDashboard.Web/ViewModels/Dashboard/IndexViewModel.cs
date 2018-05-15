@@ -8,6 +8,6 @@ namespace AppInsightsDashboard.Web.ViewModels.Dashboard
     {
         public Guid Id { get; set; }
         public int Columns { get; set; }
-        public List<DashboardItem> Items { get; set; }
+        public List<IDashboardItem> Items { get; set; }
     }
 }

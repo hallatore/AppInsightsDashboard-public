@@ -79,7 +79,11 @@ var Dashboard = React.createClass({
 
     render: function render() {
         var projects = this.props.projects.map(function (item, i) {
-            return React.createElement(DashboardItem, { key: i, name: item.name, url: item.url });
+            if (item.itemType == 0) return React.createElement(DashboardSiteItem, { key: i, name: item.name, url: item.url, silent: item.silent });
+
+            if (item.itemType == 1) return React.createElement(DashboardAnalyticsItem, { key: i, name: item.name, url: item.url, silent: item.silent, queries: item.queries });
+
+            return null;
         }.bind(this));
 
         return React.createElement(
@@ -97,8 +101,95 @@ var Dashboard = React.createClass({
 
 "use strict";
 
-var DashboardItem = React.createClass({
-    displayName: "DashboardItem",
+var DashboardAnalyticsItem = React.createClass({
+    displayName: "DashboardAnalyticsItem",
+
+    getInitialState: function getInitialState() {
+        return {
+            data: { Values: [] },
+            isError: true,
+            errorMessage: "Loading data ..."
+        };
+    },
+    componentDidMount: function componentDidMount() {
+        this.load();
+        setTimeout(function () {
+            setInterval(this.load, 60 * 1000);
+        }.bind(this), Math.random() * 60 * 1000);
+    },
+    render: function render() {
+        var error = this.state.isError ? React.createElement(
+            "div",
+            { className: "error" },
+            this.state.errorMessage
+        ) : null;
+        var values = this.state.data.Values.map(function (item, index) {
+            return React.createElement(
+                "div",
+                { key: index, className: "el-status " + this.getErrorLevel(item.ErrorLevel) },
+                React.createElement(
+                    "div",
+                    { className: "title" },
+                    item.Name
+                ),
+                React.createElement(
+                    "div",
+                    { className: "value" },
+                    item.Value,
+                    React.createElement(
+                        "span",
+                        null,
+                        item.Postfix
+                    )
+                )
+            );
+        }.bind(this));
+
+        return React.createElement(
+            "li",
+            { className: "el-dashboardItem queries_" + this.props.queries },
+            React.createElement(
+                "div",
+                { className: "el-box clearfix " + this.getErrorLevel(this.state.data.ErrorLevel) },
+                React.createElement(
+                    "h2",
+                    null,
+                    this.props.name
+                ),
+                values,
+                error
+            )
+        );
+    },
+    getErrorLevel: function getErrorLevel(errorLevel) {
+        if (errorLevel === 3) return "gray";
+
+        if (this.props.silent === true) return "";
+
+        if (errorLevel === 2) return "red";
+
+        if (errorLevel === 1) return "yellow";
+
+        return "";
+    },
+    load: function load() {
+        $.ajax({
+            url: this.props.url,
+            success: function (data) {
+                this.setState({ data: data, isError: false });
+            }.bind(this),
+            error: function () {
+                this.setState({ isError: true, errorMessage: "Error getting results" });
+            }.bind(this)
+        });
+    }
+});
+//# sourceMappingURL=DashboardAnalyticsItem.js.map
+
+"use strict";
+
+var DashboardSiteItem = React.createClass({
+    displayName: "DashboardSiteItem",
 
     getInitialState: function getInitialState() {
         return {
@@ -110,8 +201,8 @@ var DashboardItem = React.createClass({
     componentDidMount: function componentDidMount() {
         this.load();
         setTimeout(function () {
-            setInterval(this.load, 200 * 1000);
-        }.bind(this), Math.random() * 200 * 1000);
+            setInterval(this.load, 60 * 1000);
+        }.bind(this), Math.random() * 60 * 1000);
     },
     render: function render() {
         var error = this.state.isError ? React.createElement(
@@ -211,11 +302,13 @@ var DashboardItem = React.createClass({
         );
     },
     getErrorLevel: function getErrorLevel(errorLevel) {
+        if (errorLevel === 3) return "gray";
+
+        if (this.props.silent === true) return "";
+
         if (errorLevel === 2) return "red";
 
         if (errorLevel === 1) return "yellow";
-
-        if (errorLevel === 3) return "gray";
 
         return "";
     },
@@ -231,7 +324,7 @@ var DashboardItem = React.createClass({
         });
     }
 });
-//# sourceMappingURL=DashboardItem.js.map
+//# sourceMappingURL=DashboardSiteItem.js.map
 
 $(function() {
     for (var i = 0; i < window.scripts.length; i++) {

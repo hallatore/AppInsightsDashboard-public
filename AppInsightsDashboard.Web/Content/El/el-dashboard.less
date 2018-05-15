@@ -3,76 +3,57 @@
 
     .projects {
         list-style: none;
+        margin-left: -10px;
 
         li.el-dashboardItem {
-            float:left;
+            float: left;
             margin-left: 10px;
             margin-top: 10px;
         }
 
-        &.columns-1 .el-dashboardItem {            
+        &.columns-1 .el-dashboardItem {
             margin-left: 0;
             width: 100%;
         }
 
         &.columns-2 li.el-dashboardItem {
-            width: ~"calc(50% - 5px)";
-
-            &:nth-of-type(2n+1) {
-                margin-left: 0;
-            }
+            width: ~"calc(50% - 10px)";
         }
 
         &.columns-3 li.el-dashboardItem {
-            width: ~"calc(33.333% - 6.66px)";
-
-            &:nth-of-type(3n+1) {
-                margin-left: 0;
-            }
+            width: ~"calc(33.333% - 10px)";
         }
 
         &.columns-4 li.el-dashboardItem {
-            width: ~"calc(25% - 15px)";
+            width: ~"calc(25% - 10px)";
+        }
 
-            &:nth-of-type(4n+1) {
-                margin-left: 0;
+        &.columns-3 li.el-dashboardItem.queries_1 {
+            width: ~"calc(8.3% - 10px)";
+
+            .el-status {
+                width: ~"calc(100% - 10px)";
             }
         }
 
-        &.columns-5 li.el-dashboardItem {
-            width: ~"calc(20% - 16px)";
+        &.columns-3 li.el-dashboardItem.queries_2 {
+            width: ~"calc(16.5% - 10px)";
 
-            &:nth-of-type(5n+1) {
-                margin-left: 0;
+            .el-status {
+                width: ~"calc(50% - 10px)";
             }
         }
 
-        &.columns-6 li.el-dashboardItem {
-            width: ~"calc(16.666% - 17px)";
+        &.columns-3 li.el-dashboardItem.queries_3 {
+            width: ~"calc(25% - 10px)";
 
-            &:nth-of-type(6n+1) {
-                margin-left: 0;
-            }
-        }
-
-        &.columns-7 li.el-dashboardItem {
-            width: ~"calc(14.285% - 17.2px)";
-
-            &:nth-of-type(7n+1) {
-                margin-left: 0;
-            }
-        }
-
-        &.columns-8 li.el-dashboardItem {
-            width: ~"calc(12.5% - 22.857px)";
-
-            &:nth-of-type(4n+1) {
-                margin-left: 0;
+            .el-status {
+                width: ~"calc(33% - 10px)";
             }
         }
 
         @media(max-width: 1080px) {
-            & .el-dashboardItem {            
+            & .el-dashboardItem {
                 margin-left: 0 !important;
                 width: 100% !important;
             }

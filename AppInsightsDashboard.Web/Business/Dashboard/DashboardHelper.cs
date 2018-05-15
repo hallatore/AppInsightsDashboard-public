@@ -9,17 +9,17 @@ namespace AppInsightsDashboard.Web.Business.Dashboard
 {
     public static class DashboardHelper
     {
-        public static List<DashboardItem> GetItems(Guid id)
+        public static List<IDashboardItem> GetItems(Guid id)
         {
             if (DashboardConfig.Dashboards.ContainsKey(id))
                 return DashboardConfig.Dashboards[id];
 
-            return new List<DashboardItem>();
+            return new List<IDashboardItem>();
         }
 
-        public static async Task<ItemStatus> GetStatus(Guid id, Guid applicationId)
+        public static async Task<ItemStatus> GetSiteStatus(Guid id, Guid applicationId, string name)
         {
-            var item = DashboardHelper.GetItems(id).First(a => a.ApplicationId == applicationId);
+            var item = DashboardHelper.GetItems(id).OfType<DashboardSite>().First(a => a.ApplicationId == applicationId && a.Name == name);
             var requestsCount = AppInsightsClient.GetRequestsCount(item.ApplicationId, item.ApiKey, AppInsightsTimeSpan.PT1H);
             var requestsFailed = AppInsightsClient.GetExceptionsServer(item.ApplicationId, item.ApiKey, AppInsightsTimeSpan.PT1H);
             var requestsDuration = AppInsightsClient.GetRequestsDurationPercentile(item.ApplicationId, item.ApiKey, 90);
@@ -46,7 +46,7 @@ namespace AppInsightsDashboard.Web.Business.Dashboard
 
             var result = new ItemStatus
             {
-                RequestsPerMinute = requests.Value,
+                RequestsPerMinute = requests.HasValue ? requests.Value : 0,
                 AvgResponseTime = responseTime,
                 ErrorRate = errorRate,
                 ErrorRate10Min = errorRate10Min,
@@ -57,6 +57,42 @@ namespace AppInsightsDashboard.Web.Business.Dashboard
 
             result.ErrorLevel = (ErrorLevel)new[] { result.AvgResponseTimeErrorLevel, result.ErrorRateLevel, result.ErrorRateLevel10Min, availabilityErrorLevel }.Cast<int>().Max();
             return result;
+        }
+
+        public static async Task<AnalyticsStatus> GetAnalyticsStatus(Guid id, Guid applicationId, string name)
+        {
+            var item = DashboardHelper.GetItems(id).OfType<DashboardAnalytics>().First(a => a.ApplicationId == applicationId && a.Name == name);
+            var tasks = new List<Task<int?>>();
+
+            foreach (var query in item.Queries)
+            {
+                tasks.Add(AppInsightsClient.GetTelemetryQuery(item.ApplicationId, item.ApiKey, query.Query));
+            }
+
+            await Task.WhenAll(tasks);
+            var result = new AnalyticsStatus();
+
+            for (int i = 0; i < item.Queries.Count; i++)
+            {
+                result.Values.Add(new AnalyticsItem
+                {
+                    Name = item.Queries[i].Name,
+                    Value = tasks[i].Result,
+                    Postfix = item.Queries[i].Postfix,
+                    ErrorLevel = GetErrorRateLevel(tasks[i].Result, item.Queries[i])
+                });
+            }
+
+            result.ErrorLevel = (ErrorLevel)result.Values.Select(r => r.ErrorLevel).Cast<int>().Max();
+            return result;
+        }
+
+        private static ErrorLevel GetErrorRateLevel(int? value, AnalyticsQuery analyticsQuery)
+        {
+            if (analyticsQuery.GetErrorLevel != null)
+                return analyticsQuery.GetErrorLevel(value);
+
+            return ErrorLevel.Normal;
         }
 
         private static ErrorLevel GetErrorRateLevel(double errorRate)

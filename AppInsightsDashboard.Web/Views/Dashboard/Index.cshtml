@@ -1,11 +1,19 @@
-﻿@model AppInsightsDashboard.Web.ViewModels.Dashboard.IndexViewModel
+﻿@using AppInsightsDashboard.Web.Business.Dashboard.Models
+@model AppInsightsDashboard.Web.ViewModels.Dashboard.IndexViewModel
 <div id="dashboard"></div>
 <script>
     window.scripts.push(function () {
         var projects = [
             @foreach (var item in Model.Items)
             {
-                <text>{ name: "@item.Name", url: "@Url.Action("Status", new {id = Model.Id, applicationId = item.ApplicationId})"},</text>
+                if (item is DashboardSite)
+                {
+                    <text>{ name: "@item.Name", itemType: @((int)item.DashboardType), url: "@Html.Raw(Url.Action(item.DashboardType + "Status", new { id = Model.Id, applicationId = item.ApplicationId, name = item.Name }))", silent: @(item.Silent ? "true": "false")},</text>
+                }
+                else if (item is DashboardAnalytics)
+                {
+                    <text>{ name: "@item.Name", itemType: @((int)item.DashboardType), url: "@Html.Raw(Url.Action(item.DashboardType + "Status", new { id = Model.Id, applicationId = item.ApplicationId, name = item.Name }))", silent: @(item.Silent ? "true": "false"), queries: @(((DashboardAnalytics)item).Queries.Count)},</text>
+                }
             }];
 
         ReactDOM.render(React.createElement(Dashboard,
