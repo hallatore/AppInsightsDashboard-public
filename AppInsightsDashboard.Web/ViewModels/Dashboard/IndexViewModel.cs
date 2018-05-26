@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using AppInsightsDashboard.Web.Business.Dashboard.Models;
+using AppInsightsDashboard.Web.Business.Dashboard.Models.Dashboards;
 
 namespace AppInsightsDashboard.Web.ViewModels.Dashboard
 {
@@ -8,6 +9,6 @@ namespace AppInsightsDashboard.Web.ViewModels.Dashboard
     {
         public Guid Id { get; set; }
         public int Columns { get; set; }
-        public List<IDashboardItem> Items { get; set; }
+        public Dictionary<string, IDashboard> Items { get; set; }
     }
 }

@@ -106,17 +106,22 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Business\AppInsightsApi\AppInsightsClient.cs" />
+    <Compile Include="Business\Dashboard\Models\Dashboards\DashboardCustom_Queries\AnalyticsQuery.cs" />
     <Compile Include="Business\Dashboard\Models\AnalyticsStatus.cs" />
-    <Compile Include="Business\Dashboard\Models\DashboardAnalytics.cs" />
-    <Compile Include="Business\Dashboard\Models\DashboardSettings.cs" />
-    <Compile Include="Business\Dashboard\Models\DashboardSite.cs" />
-    <Compile Include="Business\Dashboard\Models\IDashboardItem.cs" />
+    <Compile Include="Business\Dashboard\Models\ApiToken.cs" />
+    <Compile Include="Business\Dashboard\Models\Dashboards\DashboardCustom.cs" />
+    <Compile Include="Business\Dashboard\Models\Dashboards\DashboardCustom_Queries\HelloWorldQuery.cs" />
+    <Compile Include="Business\Dashboard\Models\Dashboards\DashboardCustom_Queries\ICustomQuery.cs" />
+    <Compile Include="Business\Dashboard\Models\IItemStatus.cs" />
+    <Compile Include="Business\Dashboard\Models\SiteSettings.cs" />
+    <Compile Include="Business\Dashboard\Models\Dashboards\DashboardSite.cs" />
+    <Compile Include="Business\Dashboard\Models\Dashboards\IDashboard.cs" />
     <Compile Include="Controllers\DashboardController.cs" />
     <Compile Include="Business\Dashboard\DashboardHelper.cs" />
     <Compile Include="Business\Dashboard\Models\ErrorLevel.cs" />
-    <Compile Include="Business\Dashboard\Models\ItemStatus.cs" />
+    <Compile Include="Business\Dashboard\Models\SiteStatus.cs" />
     <Compile Include="Controllers\HomeController.cs" />
-    <Compile Include="DashboardConfig.cs" />
+    <Compile Include="Config.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using Newtonsoft.Json.Linq;
@@ -12,18 +13,18 @@ namespace AppInsightsDashboard.Web.Business.AppInsightsApi
         // https://www.applicationinsights.microsoft.com/apiexplorer/metrics
         private const string Url = "https://api.applicationinsights.io/v1/apps/{0}/{1}/{2}?timespan={3}&aggregation={4}";
         private const string QueryUrl = "https://api.applicationinsights.io/v1/apps/{0}/query?query={1}";
-        private static Dictionary<string, HttpClient> httpClients = new Dictionary<string, HttpClient>();
+        private static readonly Dictionary<string, HttpClient> HttpClients = new Dictionary<string, HttpClient>();
 
         private static HttpClient GetHttpClient(string apiKey)
         {
-            lock(httpClients)
+            lock(HttpClients)
             {
-                if (httpClients.ContainsKey(apiKey))
-                    return httpClients[apiKey];
+                if (HttpClients.ContainsKey(apiKey))
+                    return HttpClients[apiKey];
 
                 var client = new HttpClient();
                 client.DefaultRequestHeaders.Add("x-api-key", apiKey);
-                httpClients.Add(apiKey, client);
+                HttpClients.Add(apiKey, client);
                 return client;
             }
         }
@@ -36,13 +37,26 @@ namespace AppInsightsDashboard.Web.Business.AppInsightsApi
             return JObject.Parse(json);
         }
 
-        public static async Task<int?> GetTelemetryQuery(Guid appid, string apikey, string query)
+        public static async Task<double?> TryGetTelemetryQuery(Guid appid, string apikey, string query)
         {
+            try
+            {
+                return await GetTelemetryQuery(appid, apikey, query);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public static async Task<double?> GetTelemetryQuery(Guid appid, string apikey, string query)
+        {
+            query = Regex.Replace(query, "[ ]+", " ");
             var httpClient = GetHttpClient(apikey);
             var url = string.Format(QueryUrl, appid, HttpUtility.UrlEncode(query));
             var json = await httpClient.GetStringAsync(url).ConfigureAwait(false);
             var result = JObject.Parse(json);
-            return result["tables"][0]["rows"][0][0].Value<int?>();
+            return result["tables"][0]["rows"][0][0].Value<double?>();
         }
 
         private static async Task<int?> GetTelemetryAsInt(Guid appid, string apikey, string operation, string path, AppInsightsTimeSpan timespan, string aggregation)
@@ -77,7 +91,7 @@ namespace AppInsightsDashboard.Web.Business.AppInsightsApi
             return GetTelemetryAsInt(appid, apikey, "metrics", "requests/duration", timeSpan, "avg");
         }
 
-        public static Task<int?> GetRequestsDurationPercentile(Guid appid, string apikey, double percentile)
+        public static Task<double?> GetRequestsDurationPercentile(Guid appid, string apikey, double percentile)
         {
             return GetTelemetryQuery(appid, apikey, string.Format("requests | where timestamp >= ago(1h) | summarize percentiles(duration, {0})", percentile));
         }

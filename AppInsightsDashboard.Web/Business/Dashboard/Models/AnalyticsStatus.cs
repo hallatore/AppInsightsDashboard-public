@@ -2,7 +2,7 @@
 
 namespace AppInsightsDashboard.Web.Business.Dashboard.Models
 {
-    public class AnalyticsStatus
+    public class AnalyticsStatus : IItemStatus
     {
         public AnalyticsStatus()
         {
@@ -16,7 +16,7 @@ namespace AppInsightsDashboard.Web.Business.Dashboard.Models
     public class AnalyticsItem
     {
         public string Name { get; set; }
-        public int? Value { get; set; }
+        public string Value { get; set; }
         public string Postfix { get; set; }
         public ErrorLevel ErrorLevel { get; set; }
     }

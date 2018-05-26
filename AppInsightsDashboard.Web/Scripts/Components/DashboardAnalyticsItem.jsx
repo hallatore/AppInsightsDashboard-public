@@ -27,7 +27,9 @@
             <li className={"el-dashboardItem queries_" + this.props.queries}>
                 <div className={"el-box clearfix " + this.getErrorLevel(this.state.data.ErrorLevel)}>
                     <h2>{this.props.name}</h2>
-                    {values}
+                    <div className="status-container">
+                        {values}
+                    </div>
                     {error}
                 </div>
             </li>

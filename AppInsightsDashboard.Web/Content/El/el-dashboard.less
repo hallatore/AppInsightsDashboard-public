@@ -1,62 +1,45 @@
-﻿.el-dashboard {
-    margin-top: -10px;
+﻿.widthCalc(@columns, @size, @padding) {
+    @percentage: (100 / @columns) * @size;
+    width: e(%("calc(%a% - %a)", @percentage, @padding));
+}
+
+.el-dashboard {
+    margin-top: -5px;
+    margin-left: -10px;
+    overflow: hidden;
 
     .projects {
         list-style: none;
-        margin-left: -10px;
 
         li.el-dashboardItem {
             float: left;
             margin-left: 10px;
             margin-top: 10px;
-        }
+            width: 0px;
 
-        &.columns-1 .el-dashboardItem {
-            margin-left: 0;
-            width: 100%;
-        }
-
-        &.columns-2 li.el-dashboardItem {
-            width: ~"calc(50% - 10px)";
-        }
-
-        &.columns-3 li.el-dashboardItem {
-            width: ~"calc(33.333% - 10px)";
-        }
-
-        &.columns-4 li.el-dashboardItem {
-            width: ~"calc(25% - 10px)";
-        }
-
-        &.columns-3 li.el-dashboardItem.queries_1 {
-            width: ~"calc(8.3% - 10px)";
-
-            .el-status {
-                width: ~"calc(100% - 10px)";
+            @media(max-width: 768px) {
+                & {
+                    width: 100% !important;
+                }
             }
         }
 
-        &.columns-3 li.el-dashboardItem.queries_2 {
-            width: ~"calc(16.5% - 10px)";
+        .generate-columns(20);
 
-            .el-status {
-                width: ~"calc(50% - 10px)";
+        .generate-columns(@n, @i: 1) when (@i =< @n) {
+            &.columns-@{i} {
+                .generate(12);
+
+                .generate(@n2, @i2: 1) when (@i2 =< @n2) {
+                    li.el-dashboardItem.queries_@{i2} {
+                        .widthCalc(@i, @i2, 10px);
+                    }
+
+                    .generate(@n2, (@i2 + 1));
+                }
             }
-        }
 
-        &.columns-3 li.el-dashboardItem.queries_3 {
-            width: ~"calc(25% - 10px)";
-
-            .el-status {
-                width: ~"calc(33% - 10px)";
-            }
-        }
-
-        @media(max-width: 1080px) {
-            & .el-dashboardItem {
-                margin-left: 0 !important;
-                width: 100% !important;
-            }
+            .generate-columns(@n, (@i + 1));
         }
     }
 }

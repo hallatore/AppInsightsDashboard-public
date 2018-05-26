@@ -15,24 +15,26 @@
     render: function () {
         var error = this.state.isError ? (<div className="error">{this.state.errorMessage}</div>) : null;
         return (
-            <li className="el-dashboardItem">
+            <li className="el-dashboardItem queries_4">
                 <div className={"el-box clearfix " + this.getErrorLevel(this.state.data.ErrorLevel)}>
                     <h2>{this.props.name}</h2>
-                    <div className="el-status">
-                        <div className="title">Requests</div>
-                        <div className="value">{this.state.data.RequestsPerMinute}<span>rpm</span></div>
-                    </div>
-                    <div className={"el-status " + this.getErrorLevel(this.state.data.AvgResponseTimeErrorLevel)}>
-                        <div className="title">90 Percentile</div>
-                        <div className="value">{this.state.data.AvgResponseTime}<span>ms</span></div>
-                    </div>
-                    <div className={"el-status " + this.getErrorLevel(this.state.data.ErrorRateLevel)}>
-                        <div className="title">Error rate</div>
-                        <div className="value">{this.state.data.ErrorRate}<span>%</span></div>
-                    </div>
-                    <div className={"el-status " + this.getErrorLevel(this.state.data.ErrorRateLevel10Min)}>
-                        <div className="title">Error rate (10 min)</div>
-                        <div className="value">{this.state.data.ErrorRate10Min}<span>%</span></div>
+                    <div className="status-container">
+                        <div className="el-status">
+                            <div className="title">Requests</div>
+                            <div className="value">{this.state.data.RequestsPerMinute}<span>rpm</span></div>
+                        </div>
+                        <div className={"el-status " + this.getErrorLevel(this.state.data.AvgResponseTimeErrorLevel)}>
+                            <div className="title">90 Percentile</div>
+                            <div className="value">{this.state.data.AvgResponseTime}<span>ms</span></div>
+                        </div>
+                        <div className={"el-status " + this.getErrorLevel(this.state.data.ErrorRateLevel)}>
+                            <div className="title">Error rate</div>
+                            <div className="value">{this.state.data.ErrorRate}<span>%</span></div>
+                        </div>
+                        <div className={"el-status " + this.getErrorLevel(this.state.data.ErrorRateLevel10Min)}>
+                            <div className="title">Error rate (10 min)</div>
+                            <div className="value">{this.state.data.ErrorRate10Min}<span>%</span></div>
+                        </div>
                     </div>
                     {error}
                 </div>

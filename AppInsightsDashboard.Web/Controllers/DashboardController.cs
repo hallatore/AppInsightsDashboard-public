@@ -9,29 +9,30 @@ namespace AppInsightsDashboard.Web.Controllers
 {
     public class DashboardController : Controller
     {
-        public ActionResult Index(Guid id, int columns = 3)
+        private static DashboardHelper _dashboardHelper;
+
+        public DashboardController()
+        {
+            if(_dashboardHelper == null) 
+                _dashboardHelper = new DashboardHelper(new Config());
+        }
+
+        public ActionResult Index(Guid id, int columns = 12)
         {
             var model = new IndexViewModel
             {
                 Id = id,
                 Columns = columns,
-                Items = DashboardHelper.GetItems(id)
+                Items = _dashboardHelper.GetItems(id)
             };
 
             return View(model);
         }
 
         [OutputCache(Duration = 20, Location = OutputCacheLocation.ServerAndClient)]
-        public async Task<ActionResult> SiteStatus(Guid id, Guid applicationId, string name)
+        public async Task<ActionResult> Status(Guid id, string name)
         {
-            var result = await DashboardHelper.GetSiteStatus(id, applicationId, name);
-            return Json(result, JsonRequestBehavior.AllowGet);
-        }
-
-        [OutputCache(Duration = 20, Location = OutputCacheLocation.ServerAndClient)]
-        public async Task<ActionResult> AnalyticsStatus(Guid id, Guid applicationId, string name)
-        {
-            var result = await DashboardHelper.GetAnalyticsStatus(id, applicationId, name);
+            var result = await _dashboardHelper.GetStatus(id, name);
             return Json(result, JsonRequestBehavior.AllowGet);
         }
     }

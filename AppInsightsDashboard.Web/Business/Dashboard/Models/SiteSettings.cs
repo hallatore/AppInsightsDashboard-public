@@ -1,6 +1,6 @@
 ﻿namespace AppInsightsDashboard.Web.Business.Dashboard.Models
 {
-    public class DashboardSettings
+    public class SiteSettings
     {
         public int AvgResponseTimeWarning { get; set; }
         public double ErrorRateWarning { get; set; }

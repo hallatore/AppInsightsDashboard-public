@@ -1,6 +1,6 @@
 namespace AppInsightsDashboard.Web.Business.Dashboard.Models
 {
-    public class ItemStatus
+    public class SiteStatus : IItemStatus
     {
         public int RequestsPerMinute { get; set; }
         public int AvgResponseTime { get; set; }
