@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -57,6 +58,28 @@ namespace AppInsightsDashboard.Web.Business.AppInsightsApi
             var json = await httpClient.GetStringAsync(url).ConfigureAwait(false);
             var result = JObject.Parse(json);
             return result["tables"][0]["rows"][0][0].Value<double?>();
+        }
+
+        public static async Task<List<double>> TryGetTelemetryQueryList(Guid appid, string apikey, string query)
+        {
+            try
+            {
+                return await GetTelemetryQueryList(appid, apikey, query);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public static async Task<List<double>> GetTelemetryQueryList(Guid appid, string apikey, string query)
+        {
+            query = Regex.Replace(query, "[ ]+", " ");
+            var httpClient = GetHttpClient(apikey);
+            var url = string.Format(QueryUrl, appid, HttpUtility.UrlEncode(query));
+            var json = await httpClient.GetStringAsync(url).ConfigureAwait(false);
+            var result = JObject.Parse(json);
+            return result["tables"][0]["rows"].Select(r => r[0].Value<double>()).ToList();
         }
 
         private static async Task<int?> GetTelemetryAsInt(Guid appid, string apikey, string operation, string path, AppInsightsTimeSpan timespan, string aggregation)

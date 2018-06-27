@@ -10,20 +10,21 @@ namespace AppInsightsDashboard.Web.Business.Dashboard.Models.Dashboards.Dashboar
     {
         public HelloWorldQuery(string name)
         {
+            Type = "Value";
             Name = name;
-            Format = "{0:0}";
             Postfix = "";
             GetErrorLevel = (v) => ErrorLevel.Error;
         }
-
+        
+        public string Type { get; }
         public string Name { get; }
-        public string Format { get; }
+        public Func<dynamic, dynamic> Format => (v) => string.Format("{0:0}", v);
         public string Postfix { get; }
-        public Func<double?, ErrorLevel> GetErrorLevel { get; }
+        public Func<dynamic, ErrorLevel> GetErrorLevel { get; }
 
-        public Task<double?> GetStatus()
+        public Task<dynamic> GetStatus()
         {
-            return Task.FromResult<double?>(42);
+            return Task.FromResult<dynamic>(42);
         }
     }
 }

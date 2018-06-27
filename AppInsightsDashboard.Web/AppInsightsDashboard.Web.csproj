@@ -106,6 +106,7 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Business\AppInsightsApi\AppInsightsClient.cs" />
+    <Compile Include="Business\Dashboard\Models\Dashboards\DashboardCustom_Queries\AnalyticsChartQuery.cs" />
     <Compile Include="Business\Dashboard\Models\Dashboards\DashboardCustom_Queries\AnalyticsQuery.cs" />
     <Compile Include="Business\Dashboard\Models\AnalyticsStatus.cs" />
     <Compile Include="Business\Dashboard\Models\ApiToken.cs" />

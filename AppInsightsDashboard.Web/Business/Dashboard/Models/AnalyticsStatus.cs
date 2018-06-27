@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace AppInsightsDashboard.Web.Business.Dashboard.Models
 {
@@ -15,8 +16,9 @@ namespace AppInsightsDashboard.Web.Business.Dashboard.Models
 
     public class AnalyticsItem
     {
+        public string Type { get; set; }
         public string Name { get; set; }
-        public string Value { get; set; }
+        public dynamic Value { get; set; }
         public string Postfix { get; set; }
         public ErrorLevel ErrorLevel { get; set; }
     }

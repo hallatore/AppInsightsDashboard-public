@@ -6,8 +6,9 @@ namespace AppInsightsDashboard.Web.Business.Dashboard.Models.Dashboards.Dashboar
 {
     public class AnalyticsQuery : ICustomQuery
     {
-        public AnalyticsQuery(string name, string query, ApiToken apiToken, string format = "{0:0}", string postfix = "", Func<double?, ErrorLevel> getErrorLevel = null)
+        public AnalyticsQuery(string name, string query, ApiToken apiToken, Func<dynamic, dynamic> format = null, string postfix = "", Func<dynamic, ErrorLevel> getErrorLevel = null)
         {
+            Type = "Value";
             Name = name;
             Query = query;
             ApiToken = apiToken;
@@ -15,17 +16,19 @@ namespace AppInsightsDashboard.Web.Business.Dashboard.Models.Dashboards.Dashboar
             Postfix = postfix;
             GetErrorLevel = getErrorLevel;
         }
-
+        
+        public string Type { get; }
         public string Name { get; }
         public string Query { get; }
         public ApiToken ApiToken { get; }
-        public string Format { get; }
+        public Func<dynamic, dynamic> Format { get; }
         public string Postfix { get; }
-        public Func<double?, ErrorLevel> GetErrorLevel { get; }
+        public Func<dynamic, ErrorLevel> GetErrorLevel { get; }
 
-        public Task<double?> GetStatus()
+        public async Task<dynamic> GetStatus()
         {
-            return AppInsightsClient.TryGetTelemetryQuery(ApiToken.ApplicationId, ApiToken.ApiKey, Query);
+            var result = await AppInsightsClient.TryGetTelemetryQuery(ApiToken.ApplicationId, ApiToken.ApiKey, Query);
+            return result;
         }
     }
 }

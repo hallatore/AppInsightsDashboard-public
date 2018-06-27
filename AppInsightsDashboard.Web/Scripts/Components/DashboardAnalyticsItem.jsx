@@ -12,15 +12,48 @@
             setInterval(this.load, 60 * 1000);
         }.bind(this), Math.random() * 60 * 1000);
     },
+    componentDidUpdate: function() {
+        for (var i = 0; i < this.state.data.Values.length; i++) {
+            var item = this.state.data.Values[i];
+
+            if (item.Type === "Chart") {
+                this.drawChart(this.refs["chart_" + i], item.Value, item.ErrorLevel);
+            }
+        }
+    },
+    drawChart: function(canvas, values, errorLevel) {
+        if (canvas.getContext) {
+            var ctx = canvas.getContext('2d');
+            ctx.fillStyle = this.getErrorLevel(errorLevel) || "#555";
+            var width = canvas.width / values.length;
+            var height = canvas.height;
+
+            for (var i = 0; i < values.length; i++) {
+                var itemHeight = height * values[i];
+                ctx.fillRect(i * width, height - itemHeight, width, itemHeight);
+            }
+        }
+    },
     render: function () {
         var error = this.state.isError ? (<div className="error">{this.state.errorMessage}</div>) : null;
         var values = this.state.data.Values.map(function (item, index) {
-            return (
-                <div key={index} className={"el-status " + this.getErrorLevel(item.ErrorLevel)}>
-                    <div className="title">{item.Name}</div>
-                    <div className="value">{item.Value}<span>{item.Postfix}</span></div>
-                </div>
+            if (item.Type === "Value") {
+                return (
+                    <div key={index} className={"el-status " + this.getErrorLevel(item.ErrorLevel)}>
+                        <div className="title">{item.Name}</div>
+                        <div className="value">{item.Value}<span>{item.Postfix}</span></div>
+                    </div>
                 );
+            }
+            else if (item.Type === "Chart") {
+                return (
+                    <div key={index} className={"el-status " + this.getErrorLevel(item.ErrorLevel)}>
+                        <canvas className="chart" ref={"chart_" + index}></canvas>
+                    </div>
+                );
+            }
+
+            return null;
         }.bind(this));
 
         return (

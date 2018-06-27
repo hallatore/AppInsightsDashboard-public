@@ -19,7 +19,7 @@ namespace AppInsightsDashboard.Web.Business.Dashboard.Models.Dashboards
 
         public async Task<IItemStatus> GetStatus()
         {
-            var tasks = new List<Task<double?>>();
+            var tasks = new List<Task<dynamic>>();
 
             foreach (var query in Queries)
             {
@@ -33,8 +33,9 @@ namespace AppInsightsDashboard.Web.Business.Dashboard.Models.Dashboards
             {
                 result.Values.Add(new AnalyticsItem
                 {
+                    Type = Queries[i].Type,
                     Name = Queries[i].Name,
-                    Value = string.Format(Queries[i].Format, tasks[i].Result),
+                    Value = Queries[i].Format != null ? Queries[i].Format(tasks[i].Result) : tasks[i].Result,
                     Postfix = Queries[i].Postfix,
                     ErrorLevel = GetErrorRateLevel(tasks[i].Result, Queries[i])
                 });
@@ -50,7 +51,7 @@ namespace AppInsightsDashboard.Web.Business.Dashboard.Models.Dashboards
             return result;
         }
 
-        private ErrorLevel GetErrorRateLevel(double? value, ICustomQuery query)
+        private ErrorLevel GetErrorRateLevel(dynamic value, ICustomQuery query)
         {
             if (query.GetErrorLevel != null)
                 return query.GetErrorLevel(value);

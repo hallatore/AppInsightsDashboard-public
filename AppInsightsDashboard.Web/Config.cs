@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using AppInsightsDashboard.Web.Business.Dashboard.Models;
 using AppInsightsDashboard.Web.Business.Dashboard.Models.Dashboards;
 using AppInsightsDashboard.Web.Business.Dashboard.Models.Dashboards.DashboardCustom_Queries;
@@ -66,7 +67,37 @@ namespace AppInsightsDashboard.Web
 
                             return ErrorLevel.Normal;
                         }),
-                    new HelloWorldQuery("Hello World")
+                    new AnalyticsChartQuery("1 hour",
+                        apiToken: demoWebsiteToken,
+                        query: @"
+                            exceptions 
+                             | where timestamp >= ago(1h) 
+                             | summarize count() by bin(timestamp, 5m)
+                             | project count",
+                        format: (values) =>
+                        {
+                            if (values == null || !values.Any())
+                                return new List<double>();
+
+                            var max = Math.Max(30, values.Max());
+                            return values.Select(v => 1.0 / max * v).ToList();
+                        },
+                        getErrorLevel: (values) =>
+                        {
+                            if (values == null || !values.Any())
+                                return ErrorLevel.Error;
+
+                            var value = values.Sum();
+
+                            if (value > 600)
+                                return ErrorLevel.Error;
+                            if (value > 300)
+                                return ErrorLevel.Warning;
+                            if (value == 0)
+                                return ErrorLevel.Gray;
+
+                            return ErrorLevel.Normal;
+                        })
                 }
             });
 

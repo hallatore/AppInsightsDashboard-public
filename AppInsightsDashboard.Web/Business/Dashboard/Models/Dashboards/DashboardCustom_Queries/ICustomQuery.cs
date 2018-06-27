@@ -5,11 +5,11 @@ namespace AppInsightsDashboard.Web.Business.Dashboard.Models.Dashboards.Dashboar
 {
     public interface ICustomQuery
     {
+        string Type { get; }
         string Name { get; }
-        string Format { get; }
         string Postfix { get; }
-        Func<double?, ErrorLevel> GetErrorLevel { get; }
-
-        Task<double?> GetStatus();
+        Func<dynamic, ErrorLevel> GetErrorLevel { get; }
+        Func<dynamic, dynamic> Format { get; }
+        Task<dynamic> GetStatus();
     }
 }
