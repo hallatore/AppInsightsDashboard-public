@@ -12,7 +12,7 @@ namespace AppInsightsDashboard.Web.Business.Dashboard.Models.Dashboards.Dashboar
             Name = name;
             Query = query;
             ApiToken = apiToken;
-            Format = format;
+            Format = format ?? ((v) => v != null ? string.Format("{0:0}", v) : "-");
             Postfix = postfix;
             GetErrorLevel = getErrorLevel;
         }

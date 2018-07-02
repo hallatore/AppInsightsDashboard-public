@@ -15,22 +15,64 @@ namespace AppInsightsDashboard.Web
         {
             var defaultSiteSettings = new SiteSettings
             {
-                AvgResponseTimeWarning = 1000,
-                ErrorRateWarning = 1.0,
-                ErrorRateError = 3.0,
+                AvgResponseTimeWarning = 2000,
+                ErrorRateWarning = 3.0,
+                ErrorRateError = 5.0,
                 ErrorCountMinimum = 5
             };
-
-            var demoWebsiteToken = new ApiToken("<Application ID>", "<API key>");
+            
+            var demoSite = new ApiToken("<guid>", "<key>");
 
             var mainDashboard = new Dictionary<string, IDashboard>();
-            mainDashboard.Add("Website", new DashboardSite(demoWebsiteToken, defaultSiteSettings));
+            mainDashboard.Add("site", new DashboardSite(demoSite, defaultSiteSettings, true));
+
+            mainDashboard.Add("site - exceptions", new DashboardCustom
+            {
+                Queries = new List<ICustomQuery>
+                {
+                    new AnalyticsQuery("redis",
+                        apiToken: demoSite,
+                        query: @"
+                            exceptions
+                            | where timestamp > ago(1h)
+                            | where type contains 'Redis'
+                            | summarize Cabin_SelectionRPM = todouble(count())",
+                        postfix: "errors",
+                        getErrorLevel: (value) =>
+                        {
+                            if (value == 0)
+                                return ErrorLevel.Gray;
+
+                            return ErrorLevel.Normal;
+                        }),
+                    new AnalyticsQuery("Task Canceled",
+                        apiToken: demoSite,
+                        query: @"
+                            exceptions
+                            | where timestamp > ago(1h)
+                            | where type contains 'TaskCanceledException'
+                            | summarize Cabin_SelectionRPM = todouble(count())",
+                        postfix: "errors",
+                        getErrorLevel: (value) =>
+                        { 
+                            if (value >= 50)
+                                return ErrorLevel.Error;
+                            if (value >= 20)
+                                return ErrorLevel.Warning;
+                            if (value == 0)
+                                return ErrorLevel.Gray;
+
+                            return ErrorLevel.Normal;
+                        })
+                }
+            });
+
             mainDashboard.Add("Web tests", new DashboardCustom
             {
                 Queries = new List<ICustomQuery>
                 {
                     new AnalyticsQuery("24h",
-                        apiToken: demoWebsiteToken,
+                        apiToken: demoSite,
                         query: @"
                             availabilityResults
                             | where timestamp > ago(24h)
@@ -49,7 +91,7 @@ namespace AppInsightsDashboard.Web
                             return ErrorLevel.Normal;
                         }),
                     new AnalyticsQuery("1 hour",
-                        apiToken: demoWebsiteToken,
+                        apiToken: demoSite,
                         query: @"
                             availabilityResults
                             | where timestamp > ago(1h)
@@ -66,44 +108,13 @@ namespace AppInsightsDashboard.Web
                                 return ErrorLevel.Gray;
 
                             return ErrorLevel.Normal;
-                        }),
-                    new AnalyticsChartQuery("1 hour",
-                        apiToken: demoWebsiteToken,
-                        query: @"
-                            exceptions 
-                             | where timestamp >= ago(1h) 
-                             | summarize count() by bin(timestamp, 5m)
-                             | project count",
-                        format: (values) =>
-                        {
-                            if (values == null || !values.Any())
-                                return new List<double>();
-
-                            var max = Math.Max(30, values.Max());
-                            return values.Select(v => 1.0 / max * v).ToList();
-                        },
-                        getErrorLevel: (values) =>
-                        {
-                            if (values == null || !values.Any())
-                                return ErrorLevel.Error;
-
-                            var value = values.Sum();
-
-                            if (value > 600)
-                                return ErrorLevel.Error;
-                            if (value > 300)
-                                return ErrorLevel.Warning;
-                            if (value == 0)
-                                return ErrorLevel.Gray;
-
-                            return ErrorLevel.Normal;
                         })
                 }
             });
 
             Dashboards = new Dictionary<Guid, Dictionary<string, IDashboard>>
             {
-                { Guid.Parse("<Random GUID>"), mainDashboard }
+                { Guid.Parse("7fd512f1-d1a0-4353-92da-50f02207d70e"), mainDashboard }
             };
         }
     }

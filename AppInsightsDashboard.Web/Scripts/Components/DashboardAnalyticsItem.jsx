@@ -24,6 +24,7 @@
     drawChart: function(canvas, values, errorLevel) {
         if (canvas.getContext) {
             var ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.fillStyle = this.getErrorLevel(errorLevel) || "#555";
             var width = canvas.width / values.length;
             var height = canvas.height;

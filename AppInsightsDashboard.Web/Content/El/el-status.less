@@ -3,6 +3,13 @@
     margin-top: 5px;
     width: 100%;
 
+    .chart {
+        height: 51px;
+        width: 100%;
+        margin-top: -10px;
+        border-bottom: 1px solid #555;
+    }
+
     &:nth-of-type(4n+0) {
         margin-right: 0;
     }
@@ -18,11 +25,19 @@
     &.red {
         border-left-color: red;
         color: red;
+
+        .chart {
+            border-bottom: 1px solid red;
+        }
     }
 
     &.yellow {
         border-left-color: yellow;
         color: yellow;
+
+        .chart {
+            border-bottom: 1px solid yellow;
+        }
     }
 
     &.blue {
@@ -56,10 +71,5 @@
             text-transform: lowercase;
             font-weight: normal;
         }
-    }
-
-    .chart {
-        height: 41px;
-        width: 100%;
     }
 }

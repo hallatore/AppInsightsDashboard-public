@@ -72,6 +72,439 @@ if(this.wrapperInitData[n]===a.OBSERVED_ERROR)try{this.initializeAll(n+1)}catch(
  *
  */
 !function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e(require("react"));else if("function"==typeof define&&define.amd)define(["react"],e);else{var f;f="undefined"!=typeof window?window:"undefined"!=typeof global?global:"undefined"!=typeof self?self:this,f.ReactDOM=e(f.React)}}(function(e){return e.__SECRET_DOM_DO_NOT_USE_OR_YOU_WILL_BE_FIRED});
+"use strict";
+
+var Dashboard = React.createClass({
+    displayName: "Dashboard",
+
+    render: function render() {
+        var projects = this.props.projects.map(function (item, i) {
+            if (item.itemType == 0) return React.createElement(DashboardSiteItem, { key: i, name: item.name, url: item.url, silent: item.silent });
+
+            if (item.itemType == 1) return React.createElement(DashboardAnalyticsItem, { key: i, name: item.name, url: item.url, silent: item.silent, queries: item.queries });
+
+            return null;
+        }.bind(this));
+
+        return React.createElement(
+            "div",
+            { className: "el-dashboard clearfix" },
+            React.createElement(
+                "ul",
+                { className: "projects columns-" + this.props.columns },
+                projects
+            )
+        );
+    }
+});
+//# sourceMappingURL=Dashboard.js.map
+
+"use strict";
+
+var DashboardAnalyticsItem = React.createClass({
+    displayName: "DashboardAnalyticsItem",
+
+    getInitialState: function getInitialState() {
+        return {
+            data: { Values: [] },
+            isError: true,
+            errorMessage: "Loading data ..."
+        };
+    },
+    componentDidMount: function componentDidMount() {
+        this.load();
+        setTimeout(function () {
+            setInterval(this.load, 60 * 1000);
+        }.bind(this), Math.random() * 60 * 1000);
+    },
+    componentDidUpdate: function componentDidUpdate() {
+        for (var i = 0; i < this.state.data.Values.length; i++) {
+            var item = this.state.data.Values[i];
+
+            if (item.Type === "Chart") {
+                this.drawChart(this.refs["chart_" + i], item.Value, item.ErrorLevel);
+            }
+        }
+    },
+    drawChart: function drawChart(canvas, values, errorLevel) {
+        if (canvas.getContext) {
+            var ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = this.getErrorLevel(errorLevel) || "#555";
+            var width = canvas.width / values.length;
+            var height = canvas.height;
+
+            for (var i = 0; i < values.length; i++) {
+                var itemHeight = height * values[i];
+                ctx.fillRect(i * width, height - itemHeight, width, itemHeight);
+            }
+        }
+    },
+    render: function render() {
+        var error = this.state.isError ? React.createElement(
+            "div",
+            { className: "error" },
+            this.state.errorMessage
+        ) : null;
+        var values = this.state.data.Values.map(function (item, index) {
+            if (item.Type === "Value") {
+                return React.createElement(
+                    "div",
+                    { key: index, className: "el-status " + this.getErrorLevel(item.ErrorLevel) },
+                    React.createElement(
+                        "div",
+                        { className: "title" },
+                        item.Name
+                    ),
+                    React.createElement(
+                        "div",
+                        { className: "value" },
+                        item.Value,
+                        React.createElement(
+                            "span",
+                            null,
+                            item.Postfix
+                        )
+                    )
+                );
+            } else if (item.Type === "Chart") {
+                return React.createElement(
+                    "div",
+                    { key: index, className: "el-status " + this.getErrorLevel(item.ErrorLevel) },
+                    React.createElement("canvas", { className: "chart", ref: "chart_" + index })
+                );
+            }
+
+            return null;
+        }.bind(this));
+
+        return React.createElement(
+            "li",
+            { className: "el-dashboardItem queries_" + this.props.queries },
+            React.createElement(
+                "div",
+                { className: "el-box clearfix " + this.getErrorLevel(this.state.data.ErrorLevel) },
+                React.createElement(
+                    "h2",
+                    null,
+                    this.props.name
+                ),
+                React.createElement(
+                    "div",
+                    { className: "status-container" },
+                    values
+                ),
+                error
+            )
+        );
+    },
+    getErrorLevel: function getErrorLevel(errorLevel) {
+        if (errorLevel === 3) return "gray";
+
+        if (this.props.silent === true) return "";
+
+        if (errorLevel === 2) return "red";
+
+        if (errorLevel === 1) return "yellow";
+
+        return "";
+    },
+    load: function load() {
+        $.ajax({
+            url: this.props.url,
+            success: function (data) {
+                this.setState({ data: data, isError: false });
+            }.bind(this),
+            error: function () {
+                this.setState({ isError: true, errorMessage: "Error getting results" });
+            }.bind(this)
+        });
+    }
+});
+//# sourceMappingURL=DashboardAnalyticsItem.js.map
+
+"use strict";
+
+var DashboardItem = React.createClass({
+    displayName: "DashboardItem",
+
+    getInitialState: function getInitialState() {
+        return {
+            data: {},
+            isError: true,
+            errorMessage: "Loading data ..."
+        };
+    },
+    componentDidMount: function componentDidMount() {
+        this.load();
+        setTimeout(function () {
+            setInterval(this.load, 200 * 1000);
+        }.bind(this), Math.random() * 200 * 1000);
+    },
+    render: function render() {
+        var error = this.state.isError ? React.createElement(
+            "div",
+            { className: "error" },
+            this.state.errorMessage
+        ) : null;
+        return React.createElement(
+            "li",
+            { className: "el-dashboardItem" },
+            React.createElement(
+                "div",
+                { className: "el-box clearfix " + this.getErrorLevel(this.state.data.ErrorLevel) },
+                React.createElement(
+                    "h2",
+                    null,
+                    this.props.name
+                ),
+                React.createElement(
+                    "div",
+                    { className: "el-status" },
+                    React.createElement(
+                        "div",
+                        { className: "title" },
+                        "Requests"
+                    ),
+                    React.createElement(
+                        "div",
+                        { className: "value" },
+                        this.state.data.RequestsPerMinute,
+                        React.createElement(
+                            "span",
+                            null,
+                            "rpm"
+                        )
+                    )
+                ),
+                React.createElement(
+                    "div",
+                    { className: "el-status " + this.getErrorLevel(this.state.data.AvgResponseTimeErrorLevel) },
+                    React.createElement(
+                        "div",
+                        { className: "title" },
+                        "90 Percentile"
+                    ),
+                    React.createElement(
+                        "div",
+                        { className: "value" },
+                        this.state.data.AvgResponseTime,
+                        React.createElement(
+                            "span",
+                            null,
+                            "ms"
+                        )
+                    )
+                ),
+                React.createElement(
+                    "div",
+                    { className: "el-status " + this.getErrorLevel(this.state.data.ErrorRateLevel) },
+                    React.createElement(
+                        "div",
+                        { className: "title" },
+                        "Error rate"
+                    ),
+                    React.createElement(
+                        "div",
+                        { className: "value" },
+                        this.state.data.ErrorRate,
+                        React.createElement(
+                            "span",
+                            null,
+                            "%"
+                        )
+                    )
+                ),
+                React.createElement(
+                    "div",
+                    { className: "el-status " + this.getErrorLevel(this.state.data.ErrorRateLevel10Min) },
+                    React.createElement(
+                        "div",
+                        { className: "title" },
+                        "Error rate (10 min)"
+                    ),
+                    React.createElement(
+                        "div",
+                        { className: "value" },
+                        this.state.data.ErrorRate10Min,
+                        React.createElement(
+                            "span",
+                            null,
+                            "%"
+                        )
+                    )
+                ),
+                error
+            )
+        );
+    },
+    getErrorLevel: function getErrorLevel(errorLevel) {
+        if (errorLevel === 2) return "red";
+
+        if (errorLevel === 1) return "yellow";
+
+        if (errorLevel === 3) return "gray";
+
+        return "";
+    },
+    load: function load() {
+        $.ajax({
+            url: this.props.url,
+            success: function (data) {
+                this.setState({ data: data, isError: false });
+            }.bind(this),
+            error: function () {
+                this.setState({ isError: true, errorMessage: "Error getting results" });
+            }.bind(this)
+        });
+    }
+});
+//# sourceMappingURL=DashboardItem.js.map
+
+"use strict";
+
+var DashboardSiteItem = React.createClass({
+    displayName: "DashboardSiteItem",
+
+    getInitialState: function getInitialState() {
+        return {
+            data: {},
+            isError: true,
+            errorMessage: "Loading data ..."
+        };
+    },
+    componentDidMount: function componentDidMount() {
+        this.load();
+        setTimeout(function () {
+            setInterval(this.load, 60 * 1000);
+        }.bind(this), Math.random() * 60 * 1000);
+    },
+    render: function render() {
+        var error = this.state.isError ? React.createElement(
+            "div",
+            { className: "error" },
+            this.state.errorMessage
+        ) : null;
+        return React.createElement(
+            "li",
+            { className: "el-dashboardItem queries_4" },
+            React.createElement(
+                "div",
+                { className: "el-box clearfix " + this.getErrorLevel(this.state.data.ErrorLevel) },
+                React.createElement(
+                    "h2",
+                    null,
+                    this.props.name
+                ),
+                React.createElement(
+                    "div",
+                    { className: "status-container" },
+                    React.createElement(
+                        "div",
+                        { className: "el-status" },
+                        React.createElement(
+                            "div",
+                            { className: "title" },
+                            "Requests"
+                        ),
+                        React.createElement(
+                            "div",
+                            { className: "value" },
+                            this.state.data.RequestsPerMinute,
+                            React.createElement(
+                                "span",
+                                null,
+                                "rpm"
+                            )
+                        )
+                    ),
+                    React.createElement(
+                        "div",
+                        { className: "el-status " + this.getErrorLevel(this.state.data.AvgResponseTimeErrorLevel) },
+                        React.createElement(
+                            "div",
+                            { className: "title" },
+                            "90 Percentile"
+                        ),
+                        React.createElement(
+                            "div",
+                            { className: "value" },
+                            this.state.data.AvgResponseTime,
+                            React.createElement(
+                                "span",
+                                null,
+                                "ms"
+                            )
+                        )
+                    ),
+                    React.createElement(
+                        "div",
+                        { className: "el-status " + this.getErrorLevel(this.state.data.ErrorRateLevel) },
+                        React.createElement(
+                            "div",
+                            { className: "title" },
+                            "Error rate"
+                        ),
+                        React.createElement(
+                            "div",
+                            { className: "value" },
+                            this.state.data.ErrorRate,
+                            React.createElement(
+                                "span",
+                                null,
+                                "%"
+                            )
+                        )
+                    ),
+                    React.createElement(
+                        "div",
+                        { className: "el-status " + this.getErrorLevel(this.state.data.ErrorRateLevel10Min) },
+                        React.createElement(
+                            "div",
+                            { className: "title" },
+                            "Error rate (10 min)"
+                        ),
+                        React.createElement(
+                            "div",
+                            { className: "value" },
+                            this.state.data.ErrorRate10Min,
+                            React.createElement(
+                                "span",
+                                null,
+                                "%"
+                            )
+                        )
+                    )
+                ),
+                error
+            )
+        );
+    },
+    getErrorLevel: function getErrorLevel(errorLevel) {
+        if (errorLevel === 3) return "gray";
+
+        if (this.props.silent === true) return "";
+
+        if (errorLevel === 2) return "red";
+
+        if (errorLevel === 1) return "yellow";
+
+        return "";
+    },
+    load: function load() {
+        $.ajax({
+            url: this.props.url,
+            success: function (data) {
+                this.setState({ data: data, isError: false });
+            }.bind(this),
+            error: function () {
+                this.setState({ isError: true, errorMessage: "Error getting results" });
+            }.bind(this)
+        });
+    }
+});
+//# sourceMappingURL=DashboardSiteItem.js.map
+
 $(function() {
     for (var i = 0; i < window.scripts.length; i++) {
         window.scripts[i]();
